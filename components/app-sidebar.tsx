@@ -2,6 +2,9 @@
 
 import * as React from "react"
 import {
+  IconCalendarMonth,
+  IconCalendarPin,
+  IconCalendarWeek,
   IconCamera,
   IconChartBar,
   IconDashboard,
@@ -11,11 +14,17 @@ import {
   IconFileWord,
   IconFolder,
   IconHelp,
-  IconInnerShadowTop,
+  IconHexagons,
+  IconLayoutDashboard,
+  IconList,
   IconListDetails,
+  IconPackage,
+  IconPackages,
   IconReport,
   IconSearch,
   IconSettings,
+  IconShoppingCart,
+  IconShoppingCartCheck,
   IconUsers,
 } from "@tabler/icons-react"
 
@@ -35,35 +44,30 @@ import {
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "admin",
+    email: "admin@gmail.com",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
-      icon: IconDashboard,
+      url: "/dashboard",
+      icon: IconLayoutDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
+      title: "Categories",
+      url: "/dashboard/categories",
+      icon: IconList,
     },
     {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
+      title: "Products",
+      url: "/dashboard/products",
+      icon: IconPackages,
     },
     {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
+      title: "Sales",
+      url: "/dashboard/sales",
+      icon: IconShoppingCartCheck
     },
   ],
   navClouds: [
@@ -117,35 +121,25 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/dashboard/settings",
       icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
     },
   ],
   documents: [
     {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
+      name: "Doanh thu ngày",
+      url: "/dashboard/reports/dailysales",
+      icon: IconCalendarPin,
     },
     {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
+      name: "Doanh thu tuần",
+      url: "/dashboard/reports/weeklysales",
+      icon: IconCalendarWeek,
     },
     {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
+      name: "Doannh thu tháng",
+      url: "/dashboard/reports/monthlysales",
+      icon: IconCalendarMonth,
     },
   ],
 }
@@ -161,8 +155,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <IconHexagons className="!size-5" />
+                <span className="text-base font-semibold">Hóa Chất Cơ Bản MN</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
