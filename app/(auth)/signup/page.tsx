@@ -30,7 +30,7 @@ export default function SignUp() {
           </p>
 
           {/* Email */}
-          <div>
+          {/* <div>
             <label className="block text-gray-700">Username</label>
             <input
               type="text"
@@ -42,7 +42,7 @@ export default function SignUp() {
             {state?.errors.username && (
               <p className="text-red-500 text-sm">{state?.errors.username}</p>
             )}
-          </div>
+          </div> */}
 
           <div>
             <label className="block text-gray-700">Email</label>
@@ -106,7 +106,7 @@ export default function SignUp() {
         {/* Sign In Link */}
         <div className="text-center text-gray-600">
           Already have an account?{" "}
-          <a href="/auth/login" className="text-blue-500 hover:underline">
+          <a href="/signin" className="text-blue-500 hover:underline">
             Sign In
           </a>
         </div>

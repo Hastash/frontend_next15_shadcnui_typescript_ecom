@@ -1,5 +1,6 @@
 import { Credentials } from "./types";
 import axios from "axios";
+import { verifySession } from "./dal";
 
 export const signUpRequest = async (credentials: Credentials) => {
   try {
@@ -14,6 +15,95 @@ export const signUpRequest = async (credentials: Credentials) => {
 
     return response;
   } catch (error: any) {
+    // console.error("Error signing up:", error);
     return error?.response?.data?.error?.message || "Error signing up";
+  }
+};
+
+export const confirmEmailRequest = async (email: string) => {
+  try {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/auth/send-email-confirmation`,
+      { email }
+    );
+
+    return response;
+  } catch (error: any) {
+    // console.error("Error confirming email:", error);
+    return error?.response?.data?.error?.message || "Error confirming email";
+  }
+};
+
+export const signInRequest = async (credentials: Credentials) => {
+  try {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/auth/local`, {
+      identifier: credentials.identifier,
+      password: credentials.password,
+    });
+
+    return response;
+  } catch (error: any) {
+    return error?.response?.data?.error?.message || "Error signing in";
+  }
+};
+
+export const forgotPasswordRequest = async (email: string) => {
+  try {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/auth/forgot-password`,
+      {
+        email, // user's email
+      }
+    );
+
+    return response;
+  } catch (error: any) {
+    return (
+      error?.response?.data?.error?.message ||
+      "Error sending reset password email"
+    );
+  }
+};
+
+export const resetPasswordRequest = async (credentials: Credentials) => {
+  try {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/auth/reset-password`,
+      {
+        code: credentials?.code,
+        password: credentials?.password,
+        passwordConfirmation: credentials?.confirmPassword,
+      }
+    );
+
+    return response;
+  } catch (error: any) {
+    return error?.response?.data?.error?.message || "Error resetting password";
+  }
+};
+
+export const changePasswordRequest = async (credentials: Credentials) => {
+  try {
+    const {
+      session: { jwt },
+    }: any = await verifySession();
+
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/auth/change-password`,
+      {
+        currentPassword: credentials.password,
+        password: credentials.newPassword,
+        passwordConfirmation: credentials.confirmPassword,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      }
+    );
+
+    return response;
+  } catch (error: any) {
+    return error?.response?.data?.error?.message || "Error resetting password";
   }
 };

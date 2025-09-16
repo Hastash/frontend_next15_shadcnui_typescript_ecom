@@ -1,20 +1,11 @@
-export interface EditableRef {
-  cancel: () => void;
-}
+export type StrapiError = {
+        status: number,
+        name: string,
+        message: string,
+        details?: object
+    };
 
-export type StrapiErrorT = {
-  data: null;
-  error: {
-    status: number;
-    name: string;
-    message: string;
-  };
-};
 
-export type StrapiLoginResponseT = {
-  jwt: string;
-  user: any;
-};
 
 // Credentials for authentication
 export type Credentials = {
@@ -37,11 +28,7 @@ export type FormState = {
 };
 
 export type SessionPayload = {
-  user?: any;
+  user?: Credentials;
   expiresAt?: Date;
   jwt?: string;
 };
-
-
-export type PartialWithRequired<T, K extends keyof T> = Partial<Omit<T, K>> &
-  Pick<T, K>;
