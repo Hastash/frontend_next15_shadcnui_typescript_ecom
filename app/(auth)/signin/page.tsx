@@ -1,5 +1,3 @@
-// Path: nextjs-frontend/src/app/auth/login/page.tsx
-
 "use client";
 
 import { useActionState } from "react";
