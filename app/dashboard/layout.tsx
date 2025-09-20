@@ -15,7 +15,7 @@ export default function Page({children}: {children: React.ReactNode}) {
     );
 
   if (status === "unauthenticated") {
-    redirect("/login");
+    redirect("/signin");
   }
 
   return (

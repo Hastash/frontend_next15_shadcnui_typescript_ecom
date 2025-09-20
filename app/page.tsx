@@ -12,7 +12,7 @@ export default function Home() {
         </p>
         <div className="flex justify-center gap-6">
           <Link
-            href="/login"
+            href="/signin"
             className="px-8 py-3 bg-primary hover:bg-green-800 hover:text-white transition rounded-full text-lg font-semibold shadow-lg text-primary-foreground"
           >
             Đăng nhập
