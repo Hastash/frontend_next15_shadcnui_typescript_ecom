@@ -5,19 +5,11 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { useSession } from "next-auth/react";
+import { verifySession } from "@/lib/dal";
 import { redirect } from "next/navigation";
-export default function Page({children}: {children: React.ReactNode}) {
-  const { status } = useSession();
-  if (status === "loading")
-    return (
-      <IconLoader2 className="size-10 animate-spin mx-auto h-screen text-gray-500" />
-    );
-
-  if (status === "unauthenticated") {
-    redirect("/signin");
-  }
-
+export default async function Page({children}: {children: React.ReactNode}) {
+  const {session: { user },}: any = await verifySession();
+  
   return (
     <SidebarProvider
       style={
@@ -27,7 +19,7 @@ export default function Page({children}: {children: React.ReactNode}) {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar variant="inset" user={user} />
       <SidebarInset>
         <SiteHeader />
         {children}

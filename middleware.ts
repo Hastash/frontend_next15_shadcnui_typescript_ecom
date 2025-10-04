@@ -16,9 +16,9 @@ export default async function middleware(req: NextRequest) {
     console.log("Path in middleware:", path);
   // 3. Decrypt the session from the cookie
   const cookie = (await cookies()).get("session")?.value;
-  console.log("Cookie in middleware:", cookie);
+  // console.log("Cookie in middleware:", cookie);
   const session = await decrypt(cookie);
-    console.log("Session in middleware:", session);
+    // console.log("Session in middleware:", session);
   // 4. Redirect to /signin if the user is not authenticated
   if (isProtectedRoute && !session?.jwt) {
     return NextResponse.redirect(new URL("/signin", req.nextUrl));
@@ -28,9 +28,9 @@ export default async function middleware(req: NextRequest) {
   if (
     isPublicRoute &&
     session?.jwt &&
-    !req.nextUrl.pathname.startsWith("/profile")
+    !req.nextUrl.pathname.startsWith("/dashboard")
   ) {
-    return NextResponse.redirect(new URL("/profile", req.nextUrl));
+    return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
   }
 
   return NextResponse.next();
