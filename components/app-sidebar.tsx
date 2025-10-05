@@ -135,7 +135,6 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   user: any; // hoặc định nghĩa type rõ ràng
 };
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
-  console.log("User in AppSidebar:", user);
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>

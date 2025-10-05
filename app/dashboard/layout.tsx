@@ -6,10 +6,8 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { verifySession } from "@/lib/dal";
-import { redirect } from "next/navigation";
 export default async function Page({children}: {children: React.ReactNode}) {
-  const {session: { user },}: any = await verifySession();
-  
+  const {session: { user }}: any = await verifySession();
   return (
     <SidebarProvider
       style={
