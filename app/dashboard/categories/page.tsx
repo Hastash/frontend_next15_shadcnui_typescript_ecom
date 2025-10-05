@@ -1,87 +1,71 @@
 "use client"
 import { DataTable } from "./features/data-table"
-import { columns } from "./features/columns"
+import { Category, getColumns } from "./features/columns"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "sonner"
+import { Sheet } from "@/components/ui/sheet"
+import { New } from "./features/new"
 
-const data: Payment[] = [
-  {
-    id: "m5gr84i9",
-    amount: 316,
-    status: "success",
-    email: "ken99@example.com",
-  },
-  {
-    id: "3u1reuv4",
-    amount: 242,
-    status: "success",
-    email: "Abe45@example.com",
-  },
-  {
-    id: "derv1ws0",
-    amount: 837,
-    status: "processing",
-    email: "Monserrat44@example.com",
-  },
-  {
-    id: "5kma53ae",
-    amount: 874,
-    status: "success",
-    email: "Silas22@example.com",
-  },
-  {
-    id: "bhqecj4p",
-    amount: 721,
-    status: "failed",
-    email: "carmella@example.com",
-  },
-]
-export type Payment = {
-  id: string
-  amount: number
-  status: "pending" | "processing" | "success" | "failed"
-  email: string
-}
 export default function Page () {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  type PaginationMeta = { page: number; pageSize: number; pageCount: number; total: number };
+  const [meta, setMeta] = useState<PaginationMeta | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [filters, setFilters] = useState({name: "", description: ""});
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<Category | null>(null);
 
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setPage(1); // Reset về trang 1 khi thay đổi bộ lọc
+  }
+
+  const buildQuery = () => {
+    const query = new URLSearchParams();
+    console.log("query: ", query.toString()); 
+    query.set("pagination[page]", String(page));
+    query.set("pagination[pageSize]", String(pageSize));
+    if (filters.name) {
+      query.set("filters[name][$contains]", filters.name);
+    }
+    if (filters.description) {
+      query.set("filters[description][$contains]", filters.description);
+    }
+    return query.toString();
+  }
+
+const columns = getColumns(
+    {filters,
+    handleFilterChange,
+    onEdit: (item) => {
+      setSelectedItem(item);
+      setSheetOpen(true);
+    },
+    // handleDelete
+    }
+  );
+
+  
 useEffect(() => {
-  fetch("/api/categories")
+  fetch(`/api/categories?${buildQuery()}`)
     .then((res) => res.json())
-    .then((data) => setCategories(data.data))
+    .then((data) => {
+      setCategories(data.data); 
+      setMeta(data.meta.pagination);})
     .catch((err) => console.error(err))
     .finally(() => setLoading(false));
-}, []);
-// useEffect(() => {
-//   fetch("/api/categories")
-//     .then((res) => {
-//       console.log("📦 Response object:", res); // Kiểm tra Response gốc (status, headers, v.v.)
-//       return res.json();
-//     })
-//     .then((data) => {
-//       console.log("🧩 Full JSON data:", data); // Toàn bộ JSON server trả về
-      
-//       // Nếu là Strapi, dữ liệu chính thường nằm trong `data.data`
-//       if (Array.isArray(data.data)) {
-//         console.log("📁 Strapi data array:", data.data);
+}, [page, pageSize, filters]);
 
-//         // In ra từng phần tử trong mảng
-//         data.data.forEach((item: any, index: number) => {
-//           console.log(`➡️ Category ${index + 1}:`, item);
-//         });
-//       } else {
-//         console.warn("⚠️ Unexpected data structure:", data);
-//       }
-
-//       // Lưu vào state
-//       setCategories(data.data || []);
-//     })
-//     .catch((err) => console.error("❌ Failed to fetch categories:", err))
-//     .finally(() => setLoading(false));
-// }, []);
-
+  const handlePageSizeChange = (value: string) => {
+    const newPageSize = Number(value);
+    setPageSize(newPageSize);
+    setPage(1); // Reset về trang 1 khi thay đổi kích thước trang
+  }
 
   return (
     <div className="py-4 md:py-6 px-4 lg:px-6">
@@ -91,12 +75,90 @@ useEffect(() => {
         <CardDescription>Danh sách các Phân loại</CardDescription>
 
         <CardAction>
-          <Button>Thêm mới</Button>
+          <Button onClick={() => setSheetOpen(true)}>Thêm mới</Button>
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            <New 
+            item={selectedItem}
+            isOpen={sheetOpen}
+            onSuccess={() => {
+              setSheetOpen(false);
+              setLoading(true);
+              fetch(`/api/categories?${buildQuery()}`)
+            }}/>
+          </Sheet>
         </CardAction>
       </CardHeader>
       <CardContent>
         {loading ? <div className="text-muted-foreground">Loading...</div>  :
         <DataTable data={categories} columns={columns} />}
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-center mt-4 text-sm text-muted-foreground">
+          {meta && (
+            <>
+            {categories.length === 0
+            ? "Không có dữ liệu" 
+            : `Hiện thị ${(meta.page - 1) * meta.pageSize + 1} - ${(meta.page -1)*meta.pageSize + categories.length} trên ${meta.total} bản ghi`} 
+            </>
+          )}
+          <div className="flex items-center gap-2">
+          <span>Tối đa</span>
+          <Select 
+            value={String(pageSize)}
+            onValueChange={handlePageSizeChange}>
+              <SelectTrigger className="w-[80px] h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+          </Select>
+          <span>Bản ghi</span>
+          </div>
+        <span  className="whitespace-nowrap">Trang {meta?.page} / {meta?.pageCount}</span>
+        {/* Pagination button */}
+        <div className="flex gap-1">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setPage(1)}
+                disabled={page === 1}
+              >
+                «
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                disabled={page === 1}
+              >
+                ‹
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() =>
+                  setPage((prev) => Math.min(prev + 1, meta?.pageCount || 1))
+                }
+                disabled={page === meta?.pageCount}
+              >
+                ›
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setPage(Number(meta?.pageCount))}
+                disabled={page === meta?.pageCount}
+              >
+                »
+              </Button>
+              </div>
+        </div>
       </CardContent>
     </Card>
   </div>

@@ -1,5 +1,6 @@
 "use client"
 
+import ColumnFilter from "@/components/column-filter"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { IconDotsVertical } from "@tabler/icons-react"
@@ -7,21 +8,35 @@ import { ColumnDef } from "@tanstack/react-table"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Payment = {
-  id: string
-  amount: number
-  status: "pending" | "processing" | "success" | "failed"
-  email: string
+export type Category = {
+  name: string
+  description: string
 }
-
-export const columns: ColumnDef<Payment>[] = [
+type ColumnsProps = {
+  filters: Record<string, string>
+  handleFilterChange: (key: string, value: string) => void
+  onEdit: (item: Category) => void
+}
+export const getColumns = ({ filters, handleFilterChange }: ColumnsProps): ColumnDef<Category>[]=> [
   {
     accessorKey: "name",
-    header: "Name",
+    header: () => <ColumnFilter 
+      label="Name"
+      placeholder="Lọc theo tên"
+      value={filters.name || ""}
+      onChange={(value) => handleFilterChange("name", value)} 
+      type={"text"}    />,
+    cell: (info) => info.getValue(),
   },    
   {
     accessorKey: "description",
-    header: "Description",
+    header: () => <ColumnFilter 
+      label="Description"
+      placeholder="Lọc theo mô tả"
+      value={filters.description || ""}
+      onChange={(value) => handleFilterChange("description", value)} 
+      type={"text"}    />,
+    cell: (info) => info.getValue(),
   },
   {
     id: "actions",
