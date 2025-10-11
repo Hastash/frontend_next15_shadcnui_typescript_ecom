@@ -6,7 +6,13 @@ export type StrapiError = {
     };
 
 
-
+export type Category = {
+  id: string;
+  name: string;
+  description: string;
+  documentId: string;
+  // Add other fields if needed
+};
 // Credentials for authentication
 export type Credentials = {
   username?: string;

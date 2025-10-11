@@ -1,16 +1,18 @@
 "use client"
 import { DataTable } from "./features/data-table"
-import { Category, getColumns } from "./features/columns"
+import { getColumns } from "./features/columns"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useEffect, useState } from "react"
+import { useEffect, useOptimistic, useState, useTransition } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { Sheet } from "@/components/ui/sheet"
 import { New } from "./features/new"
+import type { Category } from "@/lib/types"
+
 
 export default function Page () {
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   type PaginationMeta = { page: number; pageSize: number; pageCount: number; total: number };
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
@@ -19,6 +21,20 @@ export default function Page () {
   const [filters, setFilters] = useState({name: "", description: ""});
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Category | null>(null);
+
+  async function fetchData() {
+      await fetch(`/api/categories?${buildQuery()}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setCategories(data.data.map(({ 
+            id, name, description, documentId }: Category) => ({ id, name, description, documentId })));
+          setMeta(data.meta?.pagination);
+      })
+      .catch((error) => {
+        console.log("Failed to fetch categories:", error);
+      })
+      .finally(() => setLoading(false));
+  };
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -39,24 +55,25 @@ export default function Page () {
     return query.toString();
   }
 
-const columns = getColumns(
-    {filters,
+const columns = getColumns({
+    filters,
     handleFilterChange,
-    onEdit: (item) => {
+    onEdit: (item: Category) => {
       setSelectedItem(item);
       setSheetOpen(true);
     },
     // handleDelete
-    }
-  );
+  });
 
   
 useEffect(() => {
+  setLoading(true);
   fetch(`/api/categories?${buildQuery()}`)
     .then((res) => res.json())
     .then((data) => {
-      setCategories(data.data); 
-      setMeta(data.meta.pagination);})
+      setCategories(data.data);
+      setMeta(data.meta?.pagination);
+    })
     .catch((err) => console.error(err))
     .finally(() => setLoading(false));
 }, [page, pageSize, filters]);
@@ -82,8 +99,7 @@ useEffect(() => {
             isOpen={sheetOpen}
             onSuccess={() => {
               setSheetOpen(false);
-              setLoading(true);
-              fetch(`/api/categories?${buildQuery()}`)
+              fetchData();
             }}/>
           </Sheet>
         </CardAction>
