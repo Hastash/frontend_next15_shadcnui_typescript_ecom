@@ -43,32 +43,6 @@ export async function POST(req: Request) {
   }
 }
 
-// ✅ PUT — cập nhật category
-export async function PUT(req: Request) {
-  const { isAuth, session } = await verifySession();
-  if (!isAuth || !session?.jwt)
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-
-  try {
-    const body = await req.json(); // { id, name, description }
-    const { id, ...updateData } = body;
-    if (!id)
-      return Response.json({ error: "Missing category ID" }, { status: 400 });
-
-    const res = await axiosInstance.put(
-      `/api/categories/${id}`,
-      { data: updateData },
-      {
-        headers: { Authorization: `Bearer ${session.jwt}` },
-      }
-    );
-    return Response.json(res.data, { status: 200 });
-  } catch (error) {
-    console.error("❌ Failed to update category:", error);
-    return Response.json({ error: "Update failed" }, { status: 500 });
-  }
-}
-
 // ✅ DELETE — xóa category
 export async function DELETE(req: Request) {
   const { isAuth, session } = await verifySession();

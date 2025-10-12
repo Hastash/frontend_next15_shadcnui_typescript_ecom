@@ -26,6 +26,7 @@ import {
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Category } from "@/lib/types";
 
 const formSchema = z.object({
     name: z.string().min(1),
@@ -33,12 +34,7 @@ const formSchema = z.object({
 });
 
 type NewCategoryProps = {
-    item?: {
-        id?: string;
-        name?: string;
-        description?: string;
-        documentId?: string;
-    } | null;
+    item?: Category | null;
     onSuccess?: () => void;
     isOpen?: boolean;
 };
@@ -71,7 +67,7 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
     async function onSubmit(value: z.infer<typeof formSchema>) {
         // console.log("Submitting data: ", value);
         startTransition(async () => {
-            if (item?.id) {
+            if (item?.documentId) {
                 await fetch(`/api/categories/${item.documentId}`, {
                     method: "PUT",
                     headers: {
@@ -79,6 +75,8 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                     },
                     body: JSON.stringify(value),
                 });
+                toast.success("Cập nhật danh mục thành công");
+                (onSuccess)?.();
             } else {
                 await fetch("/api/categories", {
                     method: "POST",

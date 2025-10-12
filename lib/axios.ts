@@ -10,7 +10,7 @@ const axiosInstance = axios.create({
 // Request interceptor — attach Authorization token
 axiosInstance.interceptors.request.use(async (config) => {
   const session = await verifySession();
-  console.log("Axios Interceptor - Session:", session);
+  // console.log("Axios Interceptor - Session:", session);
   if (session?.session?.jwt) {
     config.headers.Authorization = `Bearer ${session.session.jwt}`;
   }
