@@ -55,6 +55,22 @@ export default function Page () {
     return query.toString();
   }
 
+  const handleDelete = async (item: Category) => {
+    if(!confirm(`Are you sure you want to delete this category? ${item.name}`)) return;
+    try {
+      const response = await fetch(`/api/categories/${item.documentId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete category");
+      }
+      toast.success(<span>Đã xoá danh mục <b>{item.name}</b> thành công</span>);
+      await fetchData();
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      toast.error("Failed to delete category.");
+    } 
+  };
 const columns = getColumns({
     filters,
     handleFilterChange,
@@ -62,7 +78,9 @@ const columns = getColumns({
       setSelectedItem(item);
       setSheetOpen(true);
     },
-    // handleDelete
+    onDelete: (item: Category) => {
+      handleDelete(item);
+    },
   });
 
   

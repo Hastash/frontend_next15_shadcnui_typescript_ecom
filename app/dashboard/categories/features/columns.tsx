@@ -13,8 +13,9 @@ type ColumnsProps = {
   filters: Record<string, string>
   handleFilterChange: (key: string, value: string) => void
   onEdit: (item: Category) => void
+  onDelete: (item: Category) => void
 }
-export const getColumns = ({ filters, handleFilterChange, onEdit }: ColumnsProps): ColumnDef<Category>[] => [
+export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: ColumnsProps): ColumnDef<Category>[] => [
   {
     accessorKey: "name",
     header: () => <ColumnFilter
@@ -56,9 +57,13 @@ export const getColumns = ({ filters, handleFilterChange, onEdit }: ColumnsProps
             }}
           >Edit</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          <DropdownMenuItem variant="destructive"
+            onClick={() => {
+              onDelete(row.original);
+            }}
+          >Delete</DropdownMenuItem>
+      </DropdownMenuContent>
+      </DropdownMenu >
     ),
   },
 ]
