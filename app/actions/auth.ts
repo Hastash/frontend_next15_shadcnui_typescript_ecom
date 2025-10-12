@@ -9,7 +9,7 @@ import {
   resetPasswordRequest,
   changePasswordRequest,
 } from "@/lib/requests";
-import { deleteSession, createSession } from "@/lib/session";
+import { deleteSession, createSession } from "@/lib/server/session";
 export async function signupAction(
   initialState: FormState,
   formData: FormData
@@ -137,7 +137,7 @@ export async function signinAction(
     };
   }
   await createSession(res.data); // create session for user
-  redirect("/profile");
+  redirect("/dashboard");
 }
 
 // Logout action

@@ -1,11 +1,11 @@
 // Path: nextjs-frontend/src/app/middleware.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { decrypt } from "@/lib/session";
+import { decrypt } from "@/lib/server/session";
 import { cookies } from "next/headers";
 
 // 1. Specify protected and public routes
-const protectedRoutes = ["/profile",   "/change-password"];
+const protectedRoutes = ["/dashboard", "/change-password"];
 const publicRoutes = ["/signin", "/signup", "/"];
 
 export default async function middleware(req: NextRequest) {
@@ -13,25 +13,15 @@ export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isProtectedRoute = protectedRoutes.includes(path);
   const isPublicRoute = publicRoutes.includes(path);
-    console.log("Path in middleware:", path);
   // 3. Decrypt the session from the cookie
   const cookie = (await cookies()).get("session")?.value;
-  // console.log("Cookie in middleware:", cookie);
   const session = await decrypt(cookie);
-    // console.log("Session in middleware:", session);
-  // 4. Redirect to /signin if the user is not authenticated
-  if (isProtectedRoute && !session?.jwt) {
-    return NextResponse.redirect(new URL("/signin", req.nextUrl));
-  }
 
-  // 5. Redirect to /profile if the user is authenticated
-  if (
-    isPublicRoute &&
-    session?.jwt &&
-    !req.nextUrl.pathname.startsWith("/dashboard")
-  ) {
-    return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
-  }
+  if (isProtectedRoute && !session?.jwt)
+    return NextResponse.redirect(new URL("/signin", req.url));
+
+  if (isPublicRoute && session?.jwt)
+    return NextResponse.redirect(new URL("/dashboard", req.url));
 
   return NextResponse.next();
 }

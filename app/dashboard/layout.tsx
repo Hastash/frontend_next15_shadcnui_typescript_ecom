@@ -5,7 +5,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { verifySession } from "@/lib/dal";
+import { verifySession } from "@/lib/server/dal";
 export default async function Page({children}: {children: React.ReactNode}) {
   const {session: { user }}: any = await verifySession();
   return (

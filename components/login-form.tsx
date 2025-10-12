@@ -128,14 +128,14 @@ export function LoginForm({
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Logging in..." : "Login"}
+                  {loading ? "Đang đăng nhập..." : "Đăng nhập"}
                 </Button>
 
               </div>
               <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
+                Nếu bạn chưa có tài khoản{" "}
                 <Link href="/signup" className="underline underline-offset-4">
-                  Sign up
+                  Hãy Đăng ký
                 </Link>
               </div>
             </div>

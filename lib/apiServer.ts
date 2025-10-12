@@ -1,5 +1,5 @@
 import  axiosBase  from "./axiosBase";
-import { verifySession } from "@/lib/dal";
+import { verifySession } from "@/lib/server/dal";
 
 export const apiServer = async () => {
   const { isAuth, session } = await verifySession();
@@ -10,7 +10,9 @@ export const apiServer = async () => {
 
   const instance = axiosBase.create();
   instance.interceptors.request.use((config) => {
-    config.headers.Authorization = `Bearer ${session.jwt}`;
+    if (session?.jwt) {
+      config.headers.Authorization = `Bearer ${session.jwt}`;
+    }
     return config;
   });
 

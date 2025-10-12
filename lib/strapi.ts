@@ -1,4 +1,4 @@
-import { verifySession } from "./dal";
+import { verifySession } from "./server/dal";
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL; // ví dụ: https://cms.example.com
 

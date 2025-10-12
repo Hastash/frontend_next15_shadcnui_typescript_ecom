@@ -1,6 +1,6 @@
 import { Credentials } from "./types";
 import axios from "axios";
-import { verifySession } from "./dal";
+import { verifySession } from "./server/dal";
 
 export const signUpRequest = async (credentials: Credentials) => {
   try {

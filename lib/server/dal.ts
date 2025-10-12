@@ -13,7 +13,7 @@ export const verifySession = cache(async () => {
   const cookie = (await cookies()).get("session")?.value;
 
   const session = await decrypt(cookie);
-
+  
   if (!session) {
     return { isAuth: false, session };
   }

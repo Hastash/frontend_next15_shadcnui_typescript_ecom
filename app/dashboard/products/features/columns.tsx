@@ -5,17 +5,17 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { IconDotsVertical } from "@tabler/icons-react"
 import { ColumnDef } from "@tanstack/react-table"
-import type { Category } from "@/lib/types"
+import type { Product } from "@/lib/types"
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
 type ColumnsProps = {
   filters: Record<string, string>
   handleFilterChange: (key: string, value: string) => void
-  onEdit: (item: Category) => void
-  onDelete: (item: Category) => void
+  onEdit: (item: Product) => void
+  onDelete: (item: Product) => void
 }
-export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: ColumnsProps): ColumnDef<Category>[] => [
+export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: ColumnsProps): ColumnDef<Product>[] => [
   {
     accessorKey: "name",
     header: () => <ColumnFilter

@@ -23,7 +23,7 @@ export default function ResetPassword() {
   useEffect(() => {
     if (state.success) {
       toast.success(state.message, { position: "top-center", richColors: true });
-      redirect("/profile");
+      redirect("/dashboard");
     }
   }, [state.success]);
 

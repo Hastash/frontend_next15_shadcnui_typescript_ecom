@@ -8,11 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner"
 import { Sheet } from "@/components/ui/sheet"
 import { New } from "./features/new"
-import type { Category } from "@/lib/types"
+import type { Product } from "@/lib/types"
 
 
 export default function Page() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   type PaginationMeta = { page: number; pageSize: number; pageCount: number; total: number };
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
@@ -20,18 +20,18 @@ export default function Page() {
   const [pageSize, setPageSize] = useState(10);
   const [filters, setFilters] = useState({ name: "", description: "" });
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<Category | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Product | null>(null);
 
   async function fetchData() {
-    await fetch(`/api/categories?${buildQuery()}`)
+    await fetch(`/api/products?${buildQuery()}`)
       .then((res) => res.json())
       .then((data) => {
-        setCategories(data.data.map(({
-          id, name, description, documentId }: Category) => ({ id, name, description, documentId })));
+        setProducts(data.data.map(({
+          id, name, description, documentId }: Product) => ({ id, name, description, documentId })));
         setMeta(data.meta?.pagination);
       })
       .catch((error) => {
-        console.log("Client: Lỗi lấy danh mục:", error);
+        console.log("Client: Lỗi lấy sản phẩm:", error);
       })
       .finally(() => setLoading(false));
   };
@@ -55,30 +55,30 @@ export default function Page() {
     setFilters((prev) => ({ ...prev, [key]: value }));
     setPage(1); // Reset về trang 1 khi thay đổi bộ lọc
   }
-  const handleDelete = async (item: Category) => {
-    if (!confirm(`Bạn chắc chắn muốn xóa danh mục này? ${item.name}`)) return;
+  const handleDelete = async (item: Product) => {
+    if (!confirm(`Bạn chắc chắn muốn xóa sản phẩm này? ${item.name}`)) return;
     try {
-      const response = await fetch(`/api/categories/${item.documentId}`, {
+      const response = await fetch(`/api/products/${item.documentId}`, {
         method: "DELETE",
       });
       if (!response.ok) {
-        throw new Error("Client: Xóa danh mục thất bại");
+        throw new Error("Client: Xóa sản phẩm thất bại");
       }
-      toast.success(<span>Đã xoá danh mục <b>{item.name}</b> thành công</span>);
+      toast.success(<span>Đã xoá sản phẩm <b>{item.name}</b> thành công</span>);
       await fetchData();
     } catch (error) {
-      console.error("Client: Lỗi xóa danh mục:", error);
-      toast.error("Xóa danh mục thất bại.");
+      console.error("Client: Lỗi xóa sản phẩm:", error);
+      toast.error("Xóa sản phẩm thất bại.");
     }
   };
   const columns = getColumns({
     filters,
     handleFilterChange,
-    onEdit: (item: Category) => {
+    onEdit: (item: Product) => {
       setSelectedItem(item);
       setSheetOpen(true);
     },
-    onDelete: (item: Category) => {
+    onDelete: (item: Product) => {
       handleDelete(item);
     },
   });
@@ -86,10 +86,10 @@ export default function Page() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/categories?${buildQuery()}`)
+    fetch(`/api/products?${buildQuery()}`)
       .then((res) => res.json())
       .then((data) => {
-        setCategories(data.data);
+        setProducts(data.data);
         setMeta(data.meta?.pagination);
       })
       .catch((err) => console.error(err))
@@ -124,13 +124,13 @@ export default function Page() {
         </CardHeader>
         <CardContent>
           {loading ? <div className="text-muted-foreground">Đang tải nội dung...</div> :
-            <DataTable data={categories} columns={columns} />}
+            <DataTable data={products} columns={columns} />}
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-center mt-4 text-sm text-muted-foreground">
             {meta && (
               <>
-                {categories.length === 0
+                {products.length === 0
                   ? "Không có dữ liệu"
-                  : `Hiện thị ${(meta.page - 1) * meta.pageSize + 1} - ${(meta.page - 1) * meta.pageSize + categories.length} trên ${meta.total} bản ghi`}
+                  : `Hiện thị ${(meta.page - 1) * meta.pageSize + 1} - ${(meta.page - 1) * meta.pageSize + products.length} trên ${meta.total} bản ghi`}
               </>
             )}
             <div className="flex items-center gap-2">

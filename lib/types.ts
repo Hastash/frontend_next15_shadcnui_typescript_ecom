@@ -13,6 +13,30 @@ export type Category = {
   documentId: string;
   // Add other fields if needed
 };
+
+export type Product = {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  stock: number;
+  barcode: string;
+  category: string;
+  documentId: string;
+  image?: {
+    id: string;
+    url: string;
+  }
+};
+
+export type PaginationMeta = { 
+  page: number; 
+  pageSize: number; 
+  pageCount: number; 
+  total: number 
+};
+
+
 // Credentials for authentication
 export type Credentials = {
   username?: string;

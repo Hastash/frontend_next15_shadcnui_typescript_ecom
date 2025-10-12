@@ -4,7 +4,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -24,9 +23,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
-
-  
+}>) {  
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -38,9 +35,8 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            
-            {children}
             <Toaster />
+            {children}
           </ThemeProvider>
       </body>
     </html>
