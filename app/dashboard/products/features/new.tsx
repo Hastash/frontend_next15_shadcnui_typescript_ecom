@@ -68,24 +68,24 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
         // console.log("Submitting data: ", value);
         startTransition(async () => {
             if (item?.documentId) {
-                await fetch(`/api/categories/${item.documentId}`, {
+                await fetch(`/api/products/${item.documentId}`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(value),
                 });
-                toast.success("Cập nhật danh mục thành công");
+                toast.success("Cập sản phẩm mục thành công");
                 (onSuccess)?.();
             } else {
-                await fetch("/api/categories", {
+                await fetch("/api/products", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(value),
                 });
-                toast.success("Tạo mới danh mục thành công");
+                toast.success("Tạo mới sản phẩm thành công");
                 (onSuccess)?.();
             }
         })
@@ -95,9 +95,9 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
     return (
         <SheetContent>
             <SheetHeader>
-                <SheetTitle>{item?.id ? "Chỉnh sửa danh mục" : "Tạo mới danh mục"}</SheetTitle>
+                <SheetTitle>{item?.id ? "Chỉnh sửa sản phẩm" : "Tạo mới sản phẩm"}</SheetTitle>
             <SheetDescription>
-                Nhập thông tin chi tiết cho danh mục vào bên dưới.
+                Nhập thông tin chi tiết cho sản phẩm vào bên dưới.
             </SheetDescription>
             </SheetHeader>
             <Form {...form}>

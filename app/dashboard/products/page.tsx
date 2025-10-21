@@ -42,6 +42,8 @@ export default function Page() {
     console.log("query: ", query.toString());
     query.set("pagination[page]", String(page));
     query.set("pagination[pageSize]", String(pageSize));
+    query.set("populate[0]", "category");
+    query.set("populate[1]", "image");
     if (filters.name) {
       query.set("filters[name][$contains]", filters.name);
     }
@@ -89,6 +91,7 @@ export default function Page() {
     fetch(`/api/products?${buildQuery()}`)
       .then((res) => res.json())
       .then((data) => {
+        console.log("Fetched data:", data.data);
         setProducts(data.data);
         setMeta(data.meta?.pagination);
       })

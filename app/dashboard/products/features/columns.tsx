@@ -34,7 +34,11 @@ export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: Co
       value={filters.description || ""}
       onChange={(value) => handleFilterChange("description", value)}
       type={"text"} />,
-    cell: (info) => info.getValue(),
+    cell: (info) => (
+      <div className="whitespace-normal break-words">
+        {String(info.getValue())}
+      </div>
+    ),
   },
   {
     id: "actions",
