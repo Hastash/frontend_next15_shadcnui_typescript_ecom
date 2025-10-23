@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { IconDotsVertical } from "@tabler/icons-react"
 import { ColumnDef } from "@tanstack/react-table"
 import type { Product } from "@/lib/types"
+import Image from "next/image"
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
@@ -16,6 +17,33 @@ type ColumnsProps = {
   onDelete: (item: Product) => void
 }
 export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: ColumnsProps): ColumnDef<Product>[] => [
+    {
+      accessorKey: "image",
+      header: "Image",
+      cell: ({ row }) => {
+        <div className="flex item-center justify-center">
+          <div className="h-12 w-12 rounded overflow-hidden ">
+            <Image
+              src={`${process.env.NEXT_PUBLIC_STRAPI_URL} + ${row.original.image.formats.thumbnail.url}`}
+              alt={row.original.name}
+              width={50}
+              height={50}
+              className="object-cover"
+            />
+          </div>
+        </div>
+      },
+    },
+  {
+    accessorKey: "barcode",
+    header: () => <ColumnFilter
+      label="Barcode"
+      placeholder="Lọc theo mã vạch"
+      value={filters.barcode || ""}
+      onChange={(value) => handleFilterChange("barcode", value)}
+      type={"text"} />,
+    cell: (info) => info.getValue(),
+  },
   {
     accessorKey: "name",
     header: () => <ColumnFilter
@@ -27,19 +55,32 @@ export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: Co
     cell: (info) => info.getValue(),
   },
   {
-    accessorKey: "description",
-    header: () => <ColumnFilter
-      label="Description"
-      placeholder="Lọc theo mô tả"
-      value={filters.description || ""}
-      onChange={(value) => handleFilterChange("description", value)}
-      type={"text"} />,
-    cell: (info) => (
-      <div className="whitespace-normal break-words">
-        {String(info.getValue())}
-      </div>
-    ),
+    accessorKey: "category.name",
+    header: "Category",
   },
+  {
+    accessorKey: "price",
+    header: "Price",
+  },
+  {
+    accessorKey: "stock",
+    header: "Stock",
+  },
+
+  // {
+  //   accessorKey: "description",
+  //   header: () => <ColumnFilter
+  //     label="Description"
+  //     placeholder="Lọc theo mô tả"
+  //     value={filters.description || ""}
+  //     onChange={(value) => handleFilterChange("description", value)}
+  //     type={"text"} />,
+  //   cell: (info) => (
+  //     <div className="whitespace-normal break-words">
+  //       {String(info.getValue())}
+  //     </div>
+  //   ),
+  // },
   {
     id: "actions",
     cell: ({ row }) => (

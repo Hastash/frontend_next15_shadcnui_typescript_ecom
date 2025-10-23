@@ -23,6 +23,8 @@ export default function Page() {
   const [selectedItem, setSelectedItem] = useState<Category | null>(null);
 
   async function fetchData() {
+    const url = `/api/categories?${buildQuery()}`;
+  console.log("🔍 Fetching from URL:", url); // <-- in ra URL
     await fetch(`/api/categories?${buildQuery()}`)
       .then((res) => res.json())
       .then((data) => {
@@ -39,7 +41,6 @@ export default function Page() {
   
   const buildQuery = () => {
     const query = new URLSearchParams();
-    console.log("query: ", query.toString());
     query.set("pagination[page]", String(page));
     query.set("pagination[pageSize]", String(pageSize));
     if (filters.name) {

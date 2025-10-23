@@ -1,10 +1,10 @@
-import { verifySession } from "@/lib/server/dal";
 import { api } from "@/lib/api";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   try {
     const query = searchParams.toString();
+    console.log("query: ", query);
     const res = await api.get(`/api/products?${query}`);
     return new Response(JSON.stringify(res.data), { status: 200 });
   } catch (error) {

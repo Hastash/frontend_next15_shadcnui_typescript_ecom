@@ -39,7 +39,7 @@ export default function Page() {
   
   const buildQuery = () => {
     const query = new URLSearchParams();
-    console.log("query: ", query.toString());
+    console.log("query product : ", query.toString());
     query.set("pagination[page]", String(page));
     query.set("pagination[pageSize]", String(pageSize));
     query.set("populate[0]", "category");
