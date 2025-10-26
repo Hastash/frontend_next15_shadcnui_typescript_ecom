@@ -36,7 +36,7 @@ export default function Page() {
       .finally(() => setLoading(false));
   };
 
-  
+
   const buildQuery = () => {
     const query = new URLSearchParams();
     query.set("pagination[page]", String(page));
@@ -49,7 +49,7 @@ export default function Page() {
     }
     return query.toString();
   }
-  
+
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
     setPage(1); // Reset về trang 1 khi thay đổi bộ lọc
@@ -109,7 +109,10 @@ export default function Page() {
           <CardDescription>Danh sách các Phân loại</CardDescription>
 
           <CardAction>
-            <Button onClick={() => setSheetOpen(true)}>Thêm mới</Button>
+            <Button onClick={() => {
+              setSelectedItem(null);
+              setSheetOpen(true);
+            }}>Thêm mới</Button>
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
               <New
                 item={selectedItem}

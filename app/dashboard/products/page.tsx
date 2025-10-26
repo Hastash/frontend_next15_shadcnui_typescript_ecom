@@ -112,7 +112,10 @@ export default function Page() {
           <CardDescription>Danh sách các Sản phẩm</CardDescription>
 
           <CardAction>
-            <Button onClick={() => setSheetOpen(true)}>Thêm mới</Button>
+            <Button onClick={() => {
+              setSelectedItem(null);
+              setSheetOpen(true);
+            }}>Thêm mới</Button>
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
               <New
                 item={selectedItem}

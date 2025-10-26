@@ -156,9 +156,9 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                 await fetch(`/api/products/${item.documentId}`, {
                     method: "PUT",
                     body: JSON.stringify({
-                            ...values,
-                            category: values.category,
-                            image: imageId ? imageId : null,
+                        ...values,
+                        category: values.category,
+                        image: imageId ? imageId : null,
                     }),
                 });
                 toast.success("Cập nhật Sản phẩm thành công");
@@ -167,9 +167,9 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                 await fetch("/api/products", {
                     method: "POST",
                     body: JSON.stringify({
-                            ...values,
-                            category: values.category,
-                            image: imageId ? imageId : null,
+                        ...values,
+                        category: values.category,
+                        image: imageId ? imageId : null,
                     }),
                 });
                 toast.success("Tạo mới Sản phẩm thành công");
@@ -188,9 +188,9 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                 </SheetDescription>
             </SheetHeader>
             <Form {...form}>
-                <form 
-                onSubmit={form.handleSubmit(onSubmit)} 
-                className="space-y-8 px-6 overflow-y-scroll"
+                <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-8 px-6 overflow-y-scroll"
                 >
                     <FormField
                         control={form.control}
@@ -277,19 +277,19 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                             </FormItem>
                         )}
                     />
-                              <FormField
-            control={form.control}
-            name="barcode"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Barcode</FormLabel>
-                <FormControl>
-                  <Input placeholder="Product barcode" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                    <FormField
+                        control={form.control}
+                        name="barcode"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Barcode</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Product barcode" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                     <FormField
                         control={form.control}
                         name="description"

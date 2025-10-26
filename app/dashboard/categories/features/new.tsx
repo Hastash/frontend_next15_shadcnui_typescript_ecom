@@ -45,8 +45,8 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            name: item?.name || "",
-            description: item?.description || "",
+            name: "",
+            description: "",
         }
     });
 
@@ -91,9 +91,9 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
         <SheetContent>
             <SheetHeader>
                 <SheetTitle>{item?.id ? "Chỉnh sửa danh mục" : "Tạo mới danh mục"}</SheetTitle>
-            <SheetDescription>
-                Nhập thông tin chi tiết cho danh mục vào bên dưới.
-            </SheetDescription>
+                <SheetDescription>
+                    Nhập thông tin chi tiết cho danh mục vào bên dưới.
+                </SheetDescription>
             </SheetHeader>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 px-6">
