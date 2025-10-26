@@ -13,7 +13,6 @@ export async function strapiFetch(
   }
 
   const headers = {
-    "Content-Type": "application/json",
     Authorization: `Bearer ${session.jwt}`,
     ...options.headers,
   };

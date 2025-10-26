@@ -71,9 +71,6 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
             if (item?.documentId) {
                 await fetch(`/api/categories/${item.documentId}`, {
                     method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
                     body: JSON.stringify(value),
                 });
                 toast.success("Cập nhật danh mục thành công");
@@ -81,9 +78,6 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
             } else {
                 await fetch("/api/categories", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
                     body: JSON.stringify(value),
                 });
                 toast.success("Tạo mới danh mục thành công");

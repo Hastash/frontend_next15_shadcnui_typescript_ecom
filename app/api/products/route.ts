@@ -4,7 +4,6 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   try {
     const query = searchParams.toString();
-    console.log("query: ", query);
     const res = await api.get(`/api/products?${query}`);
     return new Response(JSON.stringify(res.data), { status: 200 });
   } catch (error) {
@@ -13,7 +12,7 @@ export async function GET(req: Request) {
   }
 }
 
-// ✅ POST — thêm mới category
+// ✅ POST — thêm mới Sản phẩm
 export async function POST(req: Request) {
   try {
     const body = await req.json(); // { name, description }

@@ -26,12 +26,23 @@ import {
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Product } from "@/lib/types";
-
+import { Category, Product } from "@/lib/types";
+import { Loader2, UploadCloud, X } from "lucide-react";
+import Image from "next/image";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 const formSchema = z.object({
-    name: z.string().min(1),
+    name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
-    price: z.coerce.number().gt(0, "Đơn giá phải lớn hơn 0"),
+    price: z.coerce.number().gt(0, "Price is required"),
+    stock: z.coerce.number().gt(0, "Stock is required"),
+    barcode: z.string().min(1, "Barcode is required"),
+    category: z.string().min(1, "Category is required"),
 });
 type NewCategoryProps = {
     item?: Product | null;
@@ -41,14 +52,39 @@ type NewCategoryProps = {
 
 export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
     const [isPending, startTransition] = useTransition();
+    const [categories, setCategories] = useState([]);
+    const [categoriesLoading, setCategoriesLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [imageId, setImageId] = useState<number | string | null>(null);
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
             description: "",
             price: 0,
+            stock: 0,
+            barcode: "",
+            category: "",
         },
     });
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            setCategoriesLoading(true);
+            await fetch("/api/categories")
+                .then((res) => res.json())
+                .then((data) => setCategories(data.data))
+                .catch((error) => {
+                    toast.error("Failed to load categories");
+                })
+                .finally(() => {
+                    setCategoriesLoading(false);
+                });
+        };
+        if (isOpen) fetchCategories();
+    }, [isOpen]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -56,24 +92,71 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
             form.reset({
                 name: item.name || "",
                 description: item.description || "",
+                price: item.price || 0,
+                stock: item.stock || 0,
+                barcode: item.barcode || "",
+                category: item.category?.documentId || "",
             });
+
+            if (item.image) {
+                setImagePreview(item.image.url);
+                setImageId(item.image.id);
+            } else {
+                setImagePreview(null);
+                setImageId(null);
+            }
         } else {
             form.reset({
                 name: "",
                 description: "",
+                price: 0,
+                stock: 0,
+                barcode: "",
+                category: "",
             });
+
+            setImagePreview(null);
+            setImageId(null);
         }
     }, [item, isOpen]);
 
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("files", file);
+        console.log("Uploading formData: ", formData);
+        console.log("Uploading formData files: ", formData.getAll("files"));
+
+        setUploading(true);
+        setUploadProgress(0);
+
+        try {
+            const res = await fetch(`/api/upload`, {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!res.ok) throw new Error("Upload failed");
+            const data = await res.json();
+            const uploadedImage = data[0];
+            setImagePreview(uploadedImage.url);
+            setImageId(uploadedImage.id);
+            toast.success("Image uploaded successfully");
+        } catch (error) {
+            toast.error("Image upload failed");
+            console.log(error);
+        } finally {
+            setUploading(false);
+        }
+    };
     async function onSubmit(value: z.infer<typeof formSchema>) {
         // console.log("Submitting data: ", value);
         startTransition(async () => {
             if (item?.documentId) {
                 await fetch(`/api/products/${item.documentId}`, {
                     method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
                     body: JSON.stringify(value),
                 });
                 toast.success("Cập sản phẩm mục thành công");
@@ -81,9 +164,6 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
             } else {
                 await fetch("/api/products", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
                     body: JSON.stringify(value),
                 });
                 toast.success("Tạo mới sản phẩm thành công");
@@ -111,7 +191,7 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                                 <FormLabel>Name</FormLabel>
                                 <FormControl>
                                     <Input
-                                        placeholder="Category name"
+                                        placeholder="Tên sản phẩm"
                                         type="text"
                                         {...field} />
                                 </FormControl>
@@ -120,21 +200,33 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                             </FormItem>
                         )}
                     />
-
                     <FormField
                         control={form.control}
-                        name="description"
+                        name="category"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Description</FormLabel>
+                                <FormLabel>Category</FormLabel>
                                 <FormControl>
-                                    <Textarea
-                                        placeholder="Category Description"
-                                        className="resize-none"
-                                        {...field}
-                                    />
+                                    {categoriesLoading ? (
+                                        <div className="flex items-center space-x-2 text-muted-foreground">
+                                            <Loader2 className="animate-spin w-4 h-4" />
+                                            <span>Loading categories...</span>
+                                        </div>
+                                    ) : (
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Select category" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {categories.map((cat: Category) => (
+                                                    <SelectItem key={cat.id} value={cat.documentId}>
+                                                        {cat.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
                                 </FormControl>
-
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -152,15 +244,92 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                                         {...field}
                                         value={typeof field.value === "number" ? field.value : ""}
                                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                        placeholder="Nhập giá sản phẩm" 
-                                        />
+                                        placeholder="Nhập giá sản phẩm"
+                                    />
                                 </FormControl>
 
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="stock"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Stock</FormLabel>
+                                <FormControl>
+                                    <Input type="number" {...field}
+                                        value={typeof field.value === "number" ? field.value : ""}
+                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                        placeholder="Nhập số lượng sản phẩm" />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Description</FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        placeholder="Product description"
+                                        className="resize-none"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <div className="space-y-2">
+                        <FormLabel>Image</FormLabel>
+                        {imagePreview && (
+                            <div className="relative w-full max-w-xs">
+                                <Image
+                                    src={process.env.NEXT_PUBLIC_STRAPI_URL + imagePreview}
+                                    alt="Product Preview"
+                                    width={500}
+                                    height={500}
+                                    className="object-cover"
+                                />
 
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setImagePreview(null);
+                                        setImageId(null);
+                                    }}
+                                    className="absolute top-1 right-1 bg-white/80 hover:bg-white p-1 rounded-full"
+                                >
+                                    <X className="h-4 w-4 text-red-500" />
+                                </button>
+                            </div>
+                        )}
+
+                        <div>
+                            <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-primary hover:underline">
+                                <UploadCloud className="w-4 h-4" />
+                                Upload image
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleImageUpload}
+                                />
+                            </label>
+                        </div>
+
+                        {uploading && (
+                            <div className="flex items-center gap-2 text-sm">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Uploading... {uploadProgress}%
+                            </div>
+                        )}
+                    </div>
                     <Button type="submit" disabled={isPending}>
                         {isPending ? "Đang lưu..." : "Xác nhận"}
                     </Button>

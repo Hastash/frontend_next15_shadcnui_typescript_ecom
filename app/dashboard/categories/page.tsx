@@ -23,8 +23,6 @@ export default function Page() {
   const [selectedItem, setSelectedItem] = useState<Category | null>(null);
 
   async function fetchData() {
-    const url = `/api/categories?${buildQuery()}`;
-  console.log("🔍 Fetching from URL:", url); // <-- in ra URL
     await fetch(`/api/categories?${buildQuery()}`)
       .then((res) => res.json())
       .then((data) => {
