@@ -15,7 +15,14 @@ export type Category = {
   documentId: string;
   // Add other fields if needed
 };
-
+export type Sale = {
+  id: string;
+  invoice_number: string;
+  customer_name: string;
+  date: string;
+  documentId: string;
+  // Add other fields if needed
+};
 export type ImageFile = {
   id: string;
   url: string;
