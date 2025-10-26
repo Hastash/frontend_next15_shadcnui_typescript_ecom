@@ -31,8 +31,8 @@ import { Product } from "@/lib/types";
 const formSchema = z.object({
     name: z.string().min(1),
     description: z.string().optional(),
+    price: z.coerce.number().gt(0, "Đơn giá phải lớn hơn 0"),
 });
-
 type NewCategoryProps = {
     item?: Product | null;
     onSuccess?: () => void;
@@ -44,9 +44,10 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            name: item?.name || "",
-            description: item?.description || "",
-        }
+            name: "",
+            description: "",
+            price: 0,
+        },
     });
 
     useEffect(() => {
@@ -96,9 +97,9 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
         <SheetContent>
             <SheetHeader>
                 <SheetTitle>{item?.id ? "Chỉnh sửa sản phẩm" : "Tạo mới sản phẩm"}</SheetTitle>
-            <SheetDescription>
-                Nhập thông tin chi tiết cho sản phẩm vào bên dưới.
-            </SheetDescription>
+                <SheetDescription>
+                    Nhập thông tin chi tiết cho sản phẩm vào bên dưới.
+                </SheetDescription>
             </SheetHeader>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 px-6">
@@ -111,8 +112,7 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                                 <FormControl>
                                     <Input
                                         placeholder="Category name"
-
-                                        type=""
+                                        type="text"
                                         {...field} />
                                 </FormControl>
 
@@ -139,6 +139,28 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                             </FormItem>
                         )}
                     />
+
+                    <FormField
+                        control={form.control}
+                        name="price"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Đơn giá</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        {...field}
+                                        value={typeof field.value === "number" ? field.value : ""}
+                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                        placeholder="Nhập giá sản phẩm" 
+                                        />
+                                </FormControl>
+
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
                     <Button type="submit" disabled={isPending}>
                         {isPending ? "Đang lưu..." : "Xác nhận"}
                     </Button>

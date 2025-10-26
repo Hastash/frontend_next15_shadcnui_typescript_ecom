@@ -18,7 +18,7 @@ export default function Page() {
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [filters, setFilters] = useState({ name: "", description: "" });
+  const [filters, setFilters] = useState({ name: "", description: "" , barcode: ""});
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Product | null>(null);
 
@@ -47,8 +47,8 @@ export default function Page() {
     if (filters.name) {
       query.set("filters[name][$contains]", filters.name);
     }
-    if (filters.description) {
-      query.set("filters[description][$contains]", filters.description);
+    if (filters.barcode) {
+      query.set("filters[barcode][$eqi]", filters.barcode);
     }
     return query.toString();
   }

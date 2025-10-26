@@ -1,9 +1,11 @@
+import z from "zod";
+
 export type StrapiError = {
-        status: number,
-        name: string,
-        message: string,
-        details?: object
-    };
+  status: number,
+  name: string,
+  message: string,
+  details?: object
+};
 
 
 export type Category = {
@@ -14,26 +16,27 @@ export type Category = {
   // Add other fields if needed
 };
 
+export type ImageFile = {
+  id: string;
+  url: string;
+};
 export type Product = {
+  documentId: string;
   id: string;
   name: string;
   description?: string;
   price: number;
   stock: number;
   barcode: string;
-  category: string;
-  documentId: string;
-  image?: {
-    id: string;
-    url: string;
-  }
+  category: Category;
+  image?: ImageFile;
 };
 
-export type PaginationMeta = { 
-  page: number; 
-  pageSize: number; 
-  pageCount: number; 
-  total: number 
+export type PaginationMeta = {
+  page: number;
+  pageSize: number;
+  pageCount: number;
+  total: number
 };
 
 
