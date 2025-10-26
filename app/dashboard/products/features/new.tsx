@@ -77,7 +77,7 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                 .then((res) => res.json())
                 .then((data) => setCategories(data.data))
                 .catch((error) => {
-                    toast.error("Failed to load categories");
+                    toast.error("Danh sách Danh mục trống");
                 })
                 .finally(() => {
                     setCategoriesLoading(false);
@@ -114,7 +114,6 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                 barcode: "",
                 category: "",
             });
-
             setImagePreview(null);
             setImageId(null);
         }
@@ -126,8 +125,6 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
 
         const formData = new FormData();
         formData.append("files", file);
-        console.log("Uploading formData: ", formData);
-        console.log("Uploading formData files: ", formData.getAll("files"));
 
         setUploading(true);
         setUploadProgress(0);
@@ -140,33 +137,42 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
 
             if (!res.ok) throw new Error("Upload failed");
             const data = await res.json();
+
             const uploadedImage = data[0];
             setImagePreview(uploadedImage.url);
             setImageId(uploadedImage.id);
-            toast.success("Image uploaded successfully");
+            toast.success("Tải ảnh lên thành công");
         } catch (error) {
-            toast.error("Image upload failed");
+            toast.error("Tải ảnh lên thất bại");
             console.log(error);
         } finally {
             setUploading(false);
         }
     };
-    async function onSubmit(value: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         // console.log("Submitting data: ", value);
         startTransition(async () => {
             if (item?.documentId) {
                 await fetch(`/api/products/${item.documentId}`, {
                     method: "PUT",
-                    body: JSON.stringify(value),
+                    body: JSON.stringify({
+                            ...values,
+                            category: values.category,
+                            image: imageId ? imageId : null,
+                    }),
                 });
-                toast.success("Cập sản phẩm mục thành công");
+                toast.success("Cập nhật Sản phẩm thành công");
                 (onSuccess)?.();
             } else {
                 await fetch("/api/products", {
                     method: "POST",
-                    body: JSON.stringify(value),
+                    body: JSON.stringify({
+                            ...values,
+                            category: values.category,
+                            image: imageId ? imageId : null,
+                    }),
                 });
-                toast.success("Tạo mới sản phẩm thành công");
+                toast.success("Tạo mới Sản phẩm thành công");
                 (onSuccess)?.();
             }
         })
@@ -176,13 +182,16 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
     return (
         <SheetContent>
             <SheetHeader>
-                <SheetTitle>{item?.id ? "Chỉnh sửa sản phẩm" : "Tạo mới sản phẩm"}</SheetTitle>
+                <SheetTitle>{item?.id ? "Chỉnh sửa Sản phẩm" : "Tạo mới Sản phẩm"}</SheetTitle>
                 <SheetDescription>
                     Nhập thông tin chi tiết cho sản phẩm vào bên dưới.
                 </SheetDescription>
             </SheetHeader>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 px-6">
+                <form 
+                onSubmit={form.handleSubmit(onSubmit)} 
+                className="space-y-8 px-6 overflow-y-scroll"
+                >
                     <FormField
                         control={form.control}
                         name="name"
@@ -268,6 +277,19 @@ export const New = ({ item = null, onSuccess, isOpen }: NewCategoryProps) => {
                             </FormItem>
                         )}
                     />
+                              <FormField
+            control={form.control}
+            name="barcode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Barcode</FormLabel>
+                <FormControl>
+                  <Input placeholder="Product barcode" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
                     <FormField
                         control={form.control}
                         name="description"

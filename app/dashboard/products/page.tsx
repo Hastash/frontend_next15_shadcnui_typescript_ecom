@@ -18,7 +18,7 @@ export default function Page() {
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [filters, setFilters] = useState({ name: "", description: "" , barcode: ""});
+  const [filters, setFilters] = useState({ name: "", description: "", barcode: "" });
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Product | null>(null);
 
@@ -26,8 +26,7 @@ export default function Page() {
     await fetch(`/api/products?${buildQuery()}`)
       .then((res) => res.json())
       .then((data) => {
-        setProducts(data.data.map(({
-          id, name, description, documentId }: Product) => ({ id, name, description, documentId })));
+        setProducts(data.data.map((data: Product) => data));
         setMeta(data.meta?.pagination);
       })
       .catch((error) => {
@@ -36,7 +35,7 @@ export default function Page() {
       .finally(() => setLoading(false));
   };
 
-  
+
   const buildQuery = () => {
     const query = new URLSearchParams();
     console.log("query product : ", query.toString());
@@ -52,7 +51,7 @@ export default function Page() {
     }
     return query.toString();
   }
-  
+
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
     setPage(1); // Reset về trang 1 khi thay đổi bộ lọc
@@ -109,8 +108,8 @@ export default function Page() {
     <div className="py-4 md:py-6 px-4 lg:px-6">
       <Card className="@container/card">
         <CardHeader>
-          <CardTitle>Danh mục Phân loại</CardTitle>
-          <CardDescription>Danh sách các Phân loại</CardDescription>
+          <CardTitle>Danh mục Sản phẩm</CardTitle>
+          <CardDescription>Danh sách các Sản phẩm</CardDescription>
 
           <CardAction>
             <Button onClick={() => setSheetOpen(true)}>Thêm mới</Button>
@@ -153,7 +152,11 @@ export default function Page() {
               </Select>
               <span>Bản ghi</span>
             </div>
-            <span className="whitespace-nowrap">Trang {meta?.page} / {meta?.pageCount}</span>
+            
+            <span className="whitespace-nowrap">
+              Trang {meta?.page} / {meta?.pageCount}
+            </span>
+
             {/* Pagination button */}
             <div className="flex gap-1">
               <Button

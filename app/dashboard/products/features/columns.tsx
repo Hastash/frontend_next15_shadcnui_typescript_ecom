@@ -7,7 +7,6 @@ import { IconDotsVertical } from "@tabler/icons-react"
 import { ColumnDef } from "@tanstack/react-table"
 import type { Product } from "@/lib/types"
 import Image from "next/image"
-import { ImageOff } from "lucide-react"
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
@@ -27,7 +26,7 @@ export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: Co
       return (
         <div className="flex item-center justify-center">
           <div className="h-12 w-12 rounded overflow-hidden ">
-            {rawUrl ? (
+            {row.original.image && (
             <Image
               src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${rawUrl}`}
               alt={row.original.name ?? "Không có hình ảnh"}
@@ -35,10 +34,6 @@ export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: Co
               height={50}
               className="object-cover"
             />
-            ) : (
-            <div className="flex h-12 w-12 items-center justify-center bg-gray-100 rounded">
-              <ImageOff className="h-6 w-6 text-gray-400" />
-            </div>
             )}
           </div>
         </div>
