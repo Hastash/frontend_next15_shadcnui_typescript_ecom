@@ -39,6 +39,27 @@ export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: Co
     cell: (info) => info.getValue(),
   },
   {
+    accessorKey: "customer_email",
+    header: () => <ColumnFilter
+      label="Customer Email"
+      placeholder="Lọc theo email khách hàng"
+      value={filters.customer_email || ""}
+      onChange={(value) => handleFilterChange("customer_email", value)}
+      type={"text"} />,
+    cell: (info) => info.getValue(),
+  },
+  {
+    accessorKey: "customer_phone",
+    header: () => <ColumnFilter
+      label="Customer Phone"
+      placeholder="Lọc theo số điện thoại khách hàng"
+      value={filters.customer_phone || ""}
+      onChange={(value) => handleFilterChange("customer_phone", value)}
+      type={"text"} />,
+    cell: (info) => info.getValue(),
+  },
+
+  {
     accessorKey: "date",
     header: () => (
       <ColumnFilter
@@ -52,7 +73,28 @@ export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: Co
     cell: (info) => {
       const date = info.getValue();
 
-      return date ? format(new Date(date as string), "yyyy-MM-dd hh:mm a") : "N/A";
+      return date ? format(new Date(date as string), "dd-MM-yyyy hh:mm a") : "N/A";
+    },
+  },
+  {
+    accessorKey: "total",
+    header: () => (
+      <ColumnFilter
+        label="Total"
+        placeholder="Lọc theo tổng giá..."
+        value={filters.total || ""}
+        onChange={(val) => handleFilterChange("total", val)}
+        type="text"
+
+      />
+    ),
+    cell: (info) => {
+      const total = Number(info.getValue());
+      // Dùng Intl.NumberFormat để format tiền tệ VNĐ
+    const formatted = new Intl.NumberFormat("en-US").format(total);
+
+    return `${formatted} VNĐ`;
+      // return total ? `$${(total as number).toFixed(2)}` : "N/A";
     },
   },
   {
@@ -74,13 +116,13 @@ export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: Co
             onClick={() => {
               onEdit(row.original);
             }}
-          >Edit</DropdownMenuItem>
+          >Tải về</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive"
             onClick={() => {
               onDelete(row.original);
             }}
-          >Delete</DropdownMenuItem>
+          >Xoá</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu >
     ),

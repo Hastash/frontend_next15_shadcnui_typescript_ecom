@@ -22,6 +22,7 @@ export default function ColumnFilter({
 }) {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value || "");
+
   useEffect(() => {
     setInputValue(value || "");
   }, [value]);

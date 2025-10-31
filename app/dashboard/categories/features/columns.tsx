@@ -55,13 +55,13 @@ export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: Co
             onClick={() => {
               onEdit(row.original);
             }}
-          >Edit</DropdownMenuItem>
+          >Chỉnh sửa</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive"
             onClick={() => {
               onDelete(row.original);
             }}
-          >Delete</DropdownMenuItem>
+          >Xoá</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu >
     ),

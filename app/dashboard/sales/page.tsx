@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
-import { Sheet } from "@/components/ui/sheet"
 import type { Sale } from "@/lib/types"
 
 
@@ -17,7 +16,7 @@ export default function Page() {
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [filters, setFilters] = useState<Sale>({ invoice_number: "", customer_name: "", date: "" } as Sale);
+  const [filters, setFilters] = useState<Sale>({ invoice_number: "", customer_name: "", customer_email: "", customer_phone: "", date: "" } as Sale);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Sale | null>(null);
 
@@ -44,6 +43,12 @@ export default function Page() {
     }
     if (filters.customer_name) {
       query.set("filters[customer_name][$contains]", filters.customer_name);
+    }
+        if (filters.customer_email) {
+      query.set("filters[customer_email][$contains]", filters.customer_email);
+    }
+    if (filters.customer_phone) {
+      query.set("filters[customer_phone][$contains]", filters.customer_phone);
     }
     if (filters.date) {
       const startOfDay = new Date(filters.date);
@@ -113,8 +118,8 @@ export default function Page() {
     <div className="py-4 md:py-6 px-4 lg:px-6">
       <Card className="@container/card">
         <CardHeader>
-          <CardTitle>Đơn hàng Phân loại</CardTitle>
-          <CardDescription>Danh sách các Phân loại</CardDescription>
+          <CardTitle>Danh mục Đơn hàng</CardTitle>
+          <CardDescription>Danh sách các Đơn hàng</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? <div className="text-muted-foreground">Đang tải nội dung...</div> :
