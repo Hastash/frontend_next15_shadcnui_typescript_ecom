@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
+import { Sheet } from "@/components/ui/sheet"
+import { New } from "./features/new"
 import type { Sale } from "@/lib/types"
 
 
@@ -120,6 +122,22 @@ export default function Page() {
         <CardHeader>
           <CardTitle>Danh mục Đơn hàng</CardTitle>
           <CardDescription>Danh sách các Đơn hàng</CardDescription>
+
+                    <CardAction>
+            <Button onClick={() => {
+              setSelectedItem(null);
+              setSheetOpen(true);
+            }}>Thêm mới</Button>
+            <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+              <New
+                item={selectedItem}
+                isOpen={sheetOpen}
+                onSuccess={() => {
+                  setSheetOpen(false);
+                  fetchData();
+                }} />
+            </Sheet>
+          </CardAction>
         </CardHeader>
         <CardContent>
           {loading ? <div className="text-muted-foreground">Đang tải nội dung...</div> :
