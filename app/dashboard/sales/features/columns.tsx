@@ -12,7 +12,7 @@ import type { Sale } from "@/lib/types"
 // You can use a Zod schema here if you want.
 
 type ColumnsProps = {
-  filters: Record<string, string>
+  filters: Sale
   handleFilterChange: (key: string, value: string) => void
   onEdit: (item: Sale) => void
   onDelete: (item: Sale) => void
@@ -65,7 +65,7 @@ export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: Co
       <ColumnFilter
         label="Date"
         placeholder="Filter date..."
-        value={filters.date || ""}
+        value={filters.date ? format(filters.date, "dd-MM-yyyy") : ""}
         onChange={(val) => handleFilterChange("date", val)}
         type="date"
       />
@@ -78,22 +78,13 @@ export const getColumns = ({ filters, handleFilterChange, onEdit, onDelete }: Co
   },
   {
     accessorKey: "total",
-    header: () => (
-      <ColumnFilter
-        label="Total"
-        placeholder="Lọc theo tổng giá..."
-        value={filters.total || ""}
-        onChange={(val) => handleFilterChange("total", val)}
-        type="text"
-
-      />
-    ),
+    header: "Total",
     cell: (info) => {
       const total = Number(info.getValue());
       // Dùng Intl.NumberFormat để format tiền tệ VNĐ
     const formatted = new Intl.NumberFormat("en-US").format(total);
 
-    return `${formatted} VNĐ`;
+    return total ? `${formatted} VNĐ` : "N/A";
       // return total ? `$${(total as number).toFixed(2)}` : "N/A";
     },
   },

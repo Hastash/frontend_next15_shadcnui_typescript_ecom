@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +14,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import axiosInstance from "@/lib/axios";
 import {
   Form,
   FormControl,
@@ -30,24 +28,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
+import { Product, ProductInSale, Sale } from "@/lib/types";
+import { saleSchema } from "@/lib/schemas";
+import { handleApiError } from "@/lib/utils";
 
-const schema = z.object({
-  customer_name: z.string().min(1, "Customer name is required"),
-  invoice_number: z.string().min(1, "Invoice number is required"),
-  customer_phone: z.string().min(1, "Invoice phone is required"),
-  customer_email: z.string().min(1, "Invoice email is required"),
-  date: z.coerce.date(),
-  notes: z.string().optional(),
-  products: z.array(
-    z.object({
-      productId: z.string().min(1),
-      name: z.string().min(1),
-      quantity: z.coerce.number().min(1),
-      price: z.coerce.number().min(1),
-      stock: z.coerce.number(),
-    })
-  ),
-});
 
 const DISCOUNT_RATE = 0.1; // 10% discount
 const TAX_RATE = 0.08; // 8% tax
@@ -55,7 +39,7 @@ const TAX_RATE = 0.08; // 8% tax
 export default function NewInvoicePage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const searchTimeout = useRef(null);
+  const searchTimeout = useRef<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [subtotal, setSubtotal] = useState(0);
@@ -65,7 +49,7 @@ export default function NewInvoicePage() {
   const [saving, setSaving] = useState(false);
 
   const form = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(saleSchema),
     defaultValues: {
       invoice_number: "",
       customer_name: "",
@@ -87,8 +71,8 @@ export default function NewInvoicePage() {
     name: "products",
   });
 
-  function formatDateTimeLocal(date) {
-    const pad = (n) => String(n).padStart(2, "0");
+  function formatDateTimeLocal(date: Date) {
+    const pad = (n: number | string) => String(n).padStart(2, "0");
 
     const year = date.getFullYear();
     const month = pad(date.getMonth() + 1);
@@ -109,13 +93,15 @@ export default function NewInvoicePage() {
       return;
     }
 
-    searchTimeout.current = setTimeout(async () => {
+    searchTimeout.current = window.setTimeout(async () => {
       try {
         setLoading(true);
-        const res = await axiosInstance.get(
-          `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products?filters[name][$containsi]=${searchTerm}&pagination[pageSize]=25`
-        );
-        const products = res.data.data.map((item) => ({
+        const url = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products?filters[name][$contains]=${searchTerm}&pagination[pageSize]=25`;
+        console.log("Fetching URL:", url);
+        const res = await fetch(url);
+        const formattedProducts = await res.json();
+        console.log("Search results:", formattedProducts);
+        const products = formattedProducts.data.map((item: Product) => ({
           id: item.id,
           name: item.name,
           price: item.price,
@@ -130,16 +116,16 @@ export default function NewInvoicePage() {
     }, 400);
   }, [searchTerm]);
 
-  const handleSelectProduct = (product) => {
+  const handleSelectProduct = (product: Product) => {
     const productExists = form
       .getValues("products")
-      .find((p) => p.productId === product.id.toString());
+      .find((p) => p.productId === product.documentId);
 
     if (productExists) {
       toast.error("Product already added");
     } else {
       append({
-        productId: product.id.toString(),
+        productId: product.documentId,
         name: product.name,
         quantity: 1,
         price: Number(product.price),
@@ -150,7 +136,7 @@ export default function NewInvoicePage() {
     }
   };
 
-  const calculateAmount = (quantity, price) => {
+  const calculateAmount = (quantity: number, price: number) => {
     return quantity * price;
   };
 
@@ -158,8 +144,8 @@ export default function NewInvoicePage() {
     let newSubtotal = 0;
     fields.forEach((item) => {
       newSubtotal += calculateAmount(
-        form.getValues(`products.${fields.indexOf(item)}.quantity`),
-        form.getValues(`products.${fields.indexOf(item)}.price`)
+        form.getValues(`products.${fields.indexOf(item)}.quantity`) as number,
+        form.getValues(`products.${fields.indexOf(item)}.price`) as number
       );
     });
 
@@ -174,7 +160,7 @@ export default function NewInvoicePage() {
     );
   }, [fields, watchedProducts]);
 
-  async function onSubmit(data) {
+  async function onSubmit(data: Sale) {
     if (data.products.length === 0) {
       toast.error("At least one product is required.");
       return;
@@ -188,7 +174,7 @@ export default function NewInvoicePage() {
         customer_phone: data.customer_phone,
         date: data.date,
         notes: data.notes,
-        products: data.products.map((item) => ({
+        products: data.products.map((item: ProductInSale) => ({
           product: item.productId,
           quantity: item.quantity,
           price: item.price,
@@ -199,23 +185,26 @@ export default function NewInvoicePage() {
         total,
       };
 
-      const saleResponse = await axiosInstance.post(
+      const res = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/sale-transactions`,
-        {
-          data: salePayload,
+        {          
+          method: "POST",
+          body: JSON.stringify(salePayload),
         }
       );
-
-      if (!saleResponse.data.data?.id) {
+      const saleResponse = await res.json();
+      console.log("Sale created:", saleResponse);
+      if (!saleResponse.data.id) {
         throw new Error("Failed to create sale.");
       }
 
       toast.success("Invoice and stock updated successfully!");
       router.push("/dashboard/sales");
     } catch (error) {
+      const errorMessage = handleApiError(error);
       console.error("Transaction failed:", error);
       toast.error(
-        `Transaction failed: ${error.message || "An error occurred."}`
+        `Transaction failed: ${errorMessage || "An error occurred."}`
       );
     } finally {
       setSaving(false);
@@ -234,7 +223,7 @@ export default function NewInvoicePage() {
               <Link href="/dashboard/sales">
                 <ArrowLeftIcon className="mr-2" />
               </Link>
-              Create new invoice
+              Tạo hoá đơn mới
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -267,7 +256,7 @@ export default function NewInvoicePage() {
                         {...field}
                         className="w-fit"
                         value={
-                          field.value
+                          field.value instanceof Date
                             ? formatDateTimeLocal(new Date(field.value))
                             : ""
                         }
@@ -341,7 +330,7 @@ export default function NewInvoicePage() {
 
               {searchResults.length > 0 && (
                 <ScrollArea className="border rounded p-2 max-h-60 mt-2">
-                  {searchResults.map((product) => (
+                  {searchResults.map((product: Product) => (
                     <div
                       key={product.id}
                       className="cursor-pointer p-2 hover:bg-muted rounded"
@@ -373,7 +362,7 @@ export default function NewInvoicePage() {
                       valueAsNumber: true,
                       min: 1,
                     })}
-                    defaultValue={item.quantity || 0}
+                    defaultValue={item.quantity as number || 0}
                   />
                 </div>
 
@@ -385,7 +374,7 @@ export default function NewInvoicePage() {
                       valueAsNumber: true,
                       min: 0,
                     })}
-                    defaultValue={item.price}
+                    defaultValue={item.price as number || 0}
                   />
                 </div>
 
@@ -394,8 +383,8 @@ export default function NewInvoicePage() {
                   <Input
                     className="text-primary"
                     value={calculateAmount(
-                      form.getValues(`products.${index}.quantity`) || 0,
-                      form.getValues(`products.${index}.price`) || 0
+                      form.getValues(`products.${index}.quantity`) as number || 0,
+                      form.getValues(`products.${index}.price`) as number || 0
                     )}
                     readOnly
                   />

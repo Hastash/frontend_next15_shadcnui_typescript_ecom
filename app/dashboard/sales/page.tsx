@@ -7,9 +7,8 @@ import { useEffect, useState } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { Sheet } from "@/components/ui/sheet"
-import { New } from "./features/new"
 import type { Sale } from "@/lib/types"
-
+import { useRouter } from "next/navigation"
 
 export default function Page() {
   const [sales, setSales] = useState<Sale[]>([]);
@@ -18,9 +17,16 @@ export default function Page() {
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [filters, setFilters] = useState<Sale>({ invoice_number: "", customer_name: "", customer_email: "", customer_phone: "", date: "" } as Sale);
+  const [filters, setFilters] = useState<Sale>({
+    invoice_number: "", 
+    customer_name: "", 
+    customer_email: "", 
+    customer_phone: "",
+    notes: ""
+  } as Sale);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Sale | null>(null);
+  const router = useRouter();
 
   async function fetchData() {
     await fetch(`/api/sales?${buildQuery()}`)
@@ -46,7 +52,7 @@ export default function Page() {
     if (filters.customer_name) {
       query.set("filters[customer_name][$contains]", filters.customer_name);
     }
-        if (filters.customer_email) {
+    if (filters.customer_email) {
       query.set("filters[customer_email][$contains]", filters.customer_email);
     }
     if (filters.customer_phone) {
@@ -123,12 +129,10 @@ export default function Page() {
           <CardTitle>Danh mục Đơn hàng</CardTitle>
           <CardDescription>Danh sách các Đơn hàng</CardDescription>
 
-                    <CardAction>
-            <Button onClick={() => {
-              setSelectedItem(null);
-              setSheetOpen(true);
-            }}>Thêm mới</Button>
-            <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <CardAction>
+            <Button onClick={() => router.push('/dashboard/sales/new')}>
+              Thêm mới</Button>
+            {/* <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
               <New
                 item={selectedItem}
                 isOpen={sheetOpen}
@@ -136,7 +140,7 @@ export default function Page() {
                   setSheetOpen(false);
                   fetchData();
                 }} />
-            </Sheet>
+            </Sheet> */}
           </CardAction>
         </CardHeader>
         <CardContent>

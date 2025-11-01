@@ -4,6 +4,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   try {
     const query = searchParams.toString();
+    console.log("Server: Fetching products with query:", query);
     const res = await api.get(`/api/products?${query}`);
     return new Response(JSON.stringify(res.data), { status: 200 });
   } catch (error) {
@@ -15,7 +16,7 @@ export async function GET(req: Request) {
 // ✅ POST — thêm mới Sản phẩm
 export async function POST(req: Request) {
   try {
-    const body = await req.json(); // { name, description }
+    const body = await req.json();   // { name, description }
     const res = await api.post(
       `/api/products`,
       { data: body }

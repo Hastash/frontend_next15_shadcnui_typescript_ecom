@@ -4,6 +4,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   try {
     const query = searchParams.toString();
+    console.log("Server: Fetching sales with query:", query);
     const res = await api.get(`/api/sales?${query}`);
     return new Response(JSON.stringify(res.data), { status: 200 });
   } catch (error) {

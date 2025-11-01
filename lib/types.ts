@@ -1,13 +1,19 @@
-import z from "zod";
+import { z } from "zod";
+import { saleSchema } from "./schemas";
 
+// Auto-generate TS type from schema
+export type Sale = z.infer<typeof saleSchema>;
+export type ProductInSale = z.infer<typeof saleSchema.shape.products.element>;
 export type StrapiError = {
   status: number,
   name: string,
   message: string,
   details?: object
 };
-
-
+export type ImageFile = {
+  id: string;
+  url: string;
+};
 export type Category = {
   id: string;
   name: string;
@@ -15,20 +21,7 @@ export type Category = {
   documentId: string;
   // Add other fields if needed
 };
-export type Sale = {
-  id: string;
-  invoice_number: string;
-  customer_name: string;
-  customer_email: string;
-  customer_phone: string;
-  date: string;
-  documentId: string;
-  // Add other fields if needed
-};
-export type ImageFile = {
-  id: string;
-  url: string;
-};
+
 export type Product = {
   documentId: string;
   id: string;
