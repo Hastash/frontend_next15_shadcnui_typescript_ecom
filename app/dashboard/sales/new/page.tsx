@@ -96,13 +96,12 @@ export default function NewInvoicePage() {
     searchTimeout.current = window.setTimeout(async () => {
       try {
         setLoading(true);
-        const url = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products?filters[name][$contains]=${searchTerm}&pagination[pageSize]=25`;
-        console.log("Fetching URL:", url);
+        const url = `/api/products?filters[name][$contains]=${searchTerm}&pagination[pageSize]=25`;
         const res = await fetch(url);
         const formattedProducts = await res.json();
-        console.log("Search results:", formattedProducts);
         const products = formattedProducts.data.map((item: Product) => ({
           id: item.id,
+          documentId: item.documentId,
           name: item.name,
           price: item.price,
           stock: item.stock,
@@ -332,7 +331,7 @@ export default function NewInvoicePage() {
                 <ScrollArea className="border rounded p-2 max-h-60 mt-2">
                   {searchResults.map((product: Product) => (
                     <div
-                      key={product.id}
+                      key={product.documentId}
                       className="cursor-pointer p-2 hover:bg-muted rounded"
                       onClick={() => handleSelectProduct(product)}
                     >
